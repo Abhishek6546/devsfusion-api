@@ -4,6 +4,12 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 require('dotenv').config();
 
+// Import Routes
+const authRoutes = require('./routes/authRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const testimonialRoutes = require('./routes/testimonialRoutes');
+const contactRoutes = require('./routes/contactRoutes');
+
 // Connect to Database
 connectDB();
 
@@ -20,7 +26,13 @@ app.get('/', (req, res) => {
     res.status(200).json({
         status: 'success',
         message: 'DevsFusion API is running gracefully 🚀',
-        version: '1.0.0'
+        version: '1.0.0',
+        endpoints: {
+            auth: '/api/auth',
+            projects: '/api/projects',
+            testimonials: '/api/testimonials',
+            contact: '/api/contact'
+        }
     });
 });
 
@@ -32,6 +44,12 @@ app.get('/health', (req, res) => {
         uptime: process.uptime()
     });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/contact', contactRoutes);
 
 // 404 Error Handler
 app.use((req, res, next) => {
