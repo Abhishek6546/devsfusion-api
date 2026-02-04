@@ -9,6 +9,8 @@ import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import testimonialRoutes from './routes/testimonialRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 dotenv.config();
 
@@ -33,7 +35,9 @@ app.get('/', (req, res) => {
             auth: '/api/auth',
             projects: '/api/projects',
             testimonials: '/api/testimonials',
-            contact: '/api/contact'
+            contact: '/api/contact',
+            services: '/api/services',
+            upload: '/api/upload'
         }
     });
 });
@@ -52,6 +56,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 Error Handler
 app.use((req, res, next) => {

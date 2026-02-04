@@ -8,6 +8,7 @@ import Contact from './pages/Contact';
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import ProtectedRoute from './components/admin/ProtectedRoute';
+import { ThemeProvider } from './context/ThemeContext';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -26,24 +27,27 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/admin/login" element={<Login />} />
+    <ThemeProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/admin/login" element={<Login />} />
 
-          {/* Admin Routes (Protected) */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-          </Route>
-        </Routes>
-      </Layout>
-    </Router>
+            {/* Admin Routes (Protected) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+            </Route>
+          </Routes>
+        </Layout>
+      </Router>
+    </ThemeProvider>
   );
 }
 
 export default App;
+

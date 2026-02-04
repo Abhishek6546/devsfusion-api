@@ -10,7 +10,6 @@ import { projectService } from '../api/services/projectService';
 const Portfolio = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('All');
 
   // Sample fallback data if API doesn't return projects
   const sampleProjects = [
@@ -98,12 +97,6 @@ const Portfolio = () => {
     fetchProjects();
   }, []);
 
-  const categories = ['All', ...new Set(projects.flatMap(p => p.techStack || []))].slice(0, 8);
-
-  const filteredProjects = filter === 'All' 
-    ? projects 
-    : projects.filter(p => p.techStack?.includes(filter));
-
   return (
     <div className="min-h-screen pt-32 pb-20">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -112,24 +105,6 @@ const Portfolio = () => {
           <p className="text-xl text-muted-foreground max-w-3xl">
             A selection of projects we've delivered for clients across different industries. Each project represents our commitment to quality, innovation, and client success.
           </p>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-12">
-          <span className="text-sm font-medium text-muted-foreground flex items-center mr-2">Filter by:</span>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                filter === cat 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'bg-secondary hover:bg-secondary/80'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
         </div>
 
         {loading ? (
@@ -141,7 +116,7 @@ const Portfolio = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence mode="popLayout">
-              {filteredProjects.map((project) => (
+              {projects.map((project) => (
                 <motion.div
                   key={project._id}
                   layout
@@ -152,16 +127,16 @@ const Portfolio = () => {
                 >
                   <Card className="overflow-hidden h-full flex flex-col group hover:shadow-xl transition-shadow">
                     <div className="relative aspect-video overflow-hidden bg-secondary">
-                      <img 
-                        src={project.imageLink} 
-                        alt={project.title} 
+                      <img
+                        src={project.imageLink}
+                        alt={project.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                         {project.liveLink && (
-                          <a 
-                            href={project.liveLink} 
-                            target="_blank" 
+                          <a
+                            href={project.liveLink}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
                           >
@@ -169,9 +144,9 @@ const Portfolio = () => {
                           </a>
                         )}
                         {project.githubLink && (
-                          <a 
-                            href={project.githubLink} 
-                            target="_blank" 
+                          <a
+                            href={project.githubLink}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
                           >
@@ -188,15 +163,9 @@ const Portfolio = () => {
                       <p className="text-muted-foreground mb-4 flex-grow text-sm leading-relaxed">
                         {project.description}
                       </p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.techStack?.slice(0, 4).map(tech => (
-                          <span key={tech} className="text-xs px-2 py-1 bg-secondary rounded text-muted-foreground">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
+                      {/* Tech stack tags removed as per user request */}
                       {project.year && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto">
                           <Calendar size={14} />
                           <span>{project.year}</span>
                         </div>
@@ -209,9 +178,9 @@ const Portfolio = () => {
           </div>
         )}
 
-        {filteredProjects.length === 0 && !loading && (
+        {projects.length === 0 && !loading && (
           <div className="text-center py-20">
-            <p className="text-xl text-muted-foreground">No projects found for this filter.</p>
+            <p className="text-xl text-muted-foreground">No projects found.</p>
           </div>
         )}
 

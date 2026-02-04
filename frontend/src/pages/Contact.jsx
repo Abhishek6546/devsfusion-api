@@ -134,7 +134,7 @@ const Contact = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+91 98765 43210"
                     />
                   </div>
                 </div>
@@ -153,11 +153,10 @@ const Contact = () => {
                 </div>
 
                 {status.message && (
-                  <div className={`p-4 rounded-md text-sm ${
-                    status.type === 'success' 
-                      ? 'bg-green-50 text-green-800 border border-green-200' 
+                  <div className={`p-4 rounded-md text-sm ${status.type === 'success'
+                      ? 'bg-green-50 text-green-800 border border-green-200'
                       : 'bg-red-50 text-red-800 border border-red-200'
-                  }`}>
+                    }`}>
                     {status.message}
                   </div>
                 )}
