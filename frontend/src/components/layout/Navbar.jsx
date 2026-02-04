@@ -26,7 +26,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'bg-transparent'
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled || isOpen ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'bg-transparent'
       }`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
@@ -91,7 +91,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-border">
+          <div className="md:hidden py-4 border-t border-border bg-background">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link
