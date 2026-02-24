@@ -1,94 +1,175 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Github, Calendar, Users } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { ExternalLink, Github, Calendar, ArrowRight, Sparkles, Mail, Phone } from 'lucide-react';
 import Section from '../components/ui/Section';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { projectService } from '../api/services/projectService';
 
+/* ─── Category config ────────────────────────────────────────────────────── */
+const categoryConfig = {
+  'Web App':    { dot: '#6ee7b7', light: 'bg-emerald-50 text-emerald-700 border-emerald-200',   dark: 'dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700/40' },
+  'Dashboard':  { dot: '#93c5fd', light: 'bg-blue-50   text-blue-700   border-blue-200',        dark: 'dark:bg-blue-900/30   dark:text-blue-300   dark:border-blue-700/40'   },
+  'Mobile App': { dot: '#fda4af', light: 'bg-rose-50   text-rose-700   border-rose-200',        dark: 'dark:bg-rose-900/30   dark:text-rose-300   dark:border-rose-700/40'   },
+};
+const defaultCat = { dot: '#a5b4fc', light: 'bg-indigo-50 text-indigo-700 border-indigo-200', dark: 'dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700/40' };
+
+/* ─── Animated counter ───────────────────────────────────────────────────── */
+const Counter = ({ target, suffix = '' }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  useEffect(() => {
+    if (!inView) return;
+    let val = 0;
+    const step = target / 50;
+    const t = setInterval(() => {
+      val += step;
+      if (val >= target) { setCount(target); clearInterval(t); }
+      else setCount(Math.floor(val));
+    }, 25);
+    return () => clearInterval(t);
+  }, [inView, target]);
+  return <span ref={ref}>{count}{suffix}</span>;
+};
+
+/* ─── Project card ───────────────────────────────────────────────────────── */
+const ProjectCard = ({ project, index }) => {
+  const cat = categoryConfig[project.category] || defaultCat;
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 36 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.93 }}
+      transition={{ duration: 0.45, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      className="group h-full"
+    >
+      <div className="
+        relative h-full flex flex-col rounded-2xl overflow-hidden
+        bg-white dark:bg-[#161b27]
+        border border-[#dbe4ff] dark:border-[#2a3550]
+        shadow-[0_2px_16px_rgba(59,91,219,0.06)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.4)]
+        hover:shadow-[0_8px_40px_rgba(59,91,219,0.18)] dark:hover:shadow-[0_8px_40px_rgba(59,91,219,0.25)]
+        hover:-translate-y-1.5 transition-all duration-400
+      ">
+        {/* Image */}
+        <div className="relative aspect-video overflow-hidden bg-[#eef2ff] dark:bg-[#1a2035]">
+          <img
+            src={project.imageLink}
+            alt={project.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.07]"
+          />
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1e3a8a]/80 via-[#3b5bdb]/30 to-transparent
+            opacity-0 group-hover:opacity-100 transition-opacity duration-300
+            flex items-end justify-between p-4"
+          >
+            <span className="text-white text-sm font-semibold tracking-wide">View project</span>
+            <div className="flex gap-2">
+              {project.liveLink && (
+                <a href={project.liveLink} target="_blank" rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/20 backdrop-blur border border-white/30
+                    flex items-center justify-center text-white hover:bg-white hover:text-[#3b5bdb] transition-all duration-200"
+                >
+                  <ExternalLink size={14} />
+                </a>
+              )}
+              {project.githubLink && (
+                <a href={project.githubLink} target="_blank" rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/20 backdrop-blur border border-white/30
+                    flex items-center justify-center text-white hover:bg-white hover:text-[#3b5bdb] transition-all duration-200"
+                >
+                  <Github size={14} />
+                </a>
+              )}
+            </div>
+          </div>
+          {/* Category badge */}
+          {project.category && (
+            <span className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full
+              text-xs font-semibold border backdrop-blur-sm ${cat.light} ${cat.dark}`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: cat.dot }} />
+              {project.category}
+            </span>
+          )}
+        </div>
+
+        {/* Body */}
+        <div className="p-5 flex flex-col flex-grow">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <h3 className="text-base font-bold text-[#1a2a5e] dark:text-[#e8eeff] leading-snug">
+              {project.title}
+            </h3>
+            {project.liveLink && (
+              <a href={project.liveLink} target="_blank" rel="noopener noreferrer"
+                className="shrink-0 mt-0.5 text-[#748ffc] dark:text-[#7c93f0] hover:text-[#3b5bdb] dark:hover:text-white transition-colors"
+              >
+                <ExternalLink size={15} />
+              </a>
+            )}
+          </div>
+          <p className="text-sm text-[#5a6b9a] dark:text-[#8896c0] leading-relaxed flex-grow mb-4">
+            {project.description}
+          </p>
+          {project.year && (
+            <div className="flex items-center gap-1.5 text-xs text-[#748ffc] dark:text-[#5a75d9] mt-auto pt-3
+              border-t border-[#e8ecff] dark:border-[#1e2d4a]"
+            >
+              <Calendar size={11} />
+              <span className="font-medium">{project.year}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+const Skeleton = () => (
+  <div className="rounded-2xl overflow-hidden border border-[#dbe4ff] dark:border-[#2a3550] bg-white dark:bg-[#161b27] animate-pulse">
+    <div className="aspect-video bg-[#eef2ff] dark:bg-[#1a2035]" />
+    <div className="p-5 space-y-3">
+      <div className="h-3.5 w-1/3 rounded-full bg-[#e8ecff] dark:bg-[#1e2d4a]" />
+      <div className="h-5 w-3/4 rounded-full bg-[#e8ecff] dark:bg-[#1e2d4a]" />
+      <div className="h-3 rounded-full bg-[#e8ecff] dark:bg-[#1e2d4a]" />
+      <div className="h-3 w-5/6 rounded-full bg-[#e8ecff] dark:bg-[#1e2d4a]" />
+    </div>
+  </div>
+);
+
+/* ─── Stat card ──────────────────────────────────────────────────────────── */
+const StatCard = ({ number, suffix, label }) => (
+  <div className="text-center px-6 py-5 rounded-xl bg-[#eef2ff] dark:bg-[#1a2035] border border-[#dbe4ff] dark:border-[#2a3550]">
+    <p className="text-3xl font-black tracking-tight text-[#3b5bdb] dark:text-[#748ffc]">
+      <Counter target={number} suffix={suffix} />
+    </p>
+    <p className="text-xs text-[#5a6b9a] dark:text-[#8896c0] mt-1 font-medium">{label}</p>
+  </div>
+);
+
+/* ─── Main ───────────────────────────────────────────────────────────────── */
 const Portfolio = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('All');
 
-  // Sample fallback data if API doesn't return projects
   const sampleProjects = [
-    {
-      _id: '1',
-      title: 'E-Commerce Platform',
-      description: 'A full-featured online store with inventory management, payment processing, and order tracking. Built for a fashion retailer serving 10,000+ monthly customers.',
-      imageLink: 'https://images.unsplash.com/photo-1557821552-17105176677c?w=800&h=600&fit=crop',
-      techStack: ['React', 'Node.js', 'MongoDB', 'Stripe'],
-      liveLink: '#',
-      githubLink: '#',
-      category: 'Web App',
-      year: '2024'
-    },
-    {
-      _id: '2',
-      title: 'Healthcare Dashboard',
-      description: 'Patient management system for a medical clinic with appointment scheduling, medical records, and billing integration.',
-      imageLink: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop',
-      techStack: ['Next.js', 'PostgreSQL', 'TypeScript'],
-      liveLink: '#',
-      category: 'Dashboard',
-      year: '2024'
-    },
-    {
-      _id: '3',
-      title: 'Real Estate Marketplace',
-      description: 'Property listing platform with advanced search, virtual tours, and agent management features.',
-      imageLink: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop',
-      techStack: ['React', 'Firebase', 'Google Maps API'],
-      liveLink: '#',
-      githubLink: '#',
-      category: 'Web App',
-      year: '2023'
-    },
-    {
-      _id: '4',
-      title: 'Fitness Tracking App',
-      description: 'Mobile-responsive fitness tracker with workout plans, progress tracking, and social features.',
-      imageLink: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&h=600&fit=crop',
-      techStack: ['React Native', 'Node.js', 'MongoDB'],
-      liveLink: '#',
-      category: 'Mobile App',
-      year: '2023'
-    },
-    {
-      _id: '5',
-      title: 'SaaS Analytics Platform',
-      description: 'Business intelligence dashboard with real-time data visualization and custom reporting.',
-      imageLink: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
-      techStack: ['Vue.js', 'Python', 'PostgreSQL', 'Chart.js'],
-      liveLink: '#',
-      category: 'Dashboard',
-      year: '2023'
-    },
-    {
-      _id: '6',
-      title: 'Restaurant Ordering System',
-      description: 'Online ordering platform with menu management, delivery tracking, and customer loyalty program.',
-      imageLink: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600&fit=crop',
-      techStack: ['React', 'Node.js', 'Stripe', 'Twilio'],
-      liveLink: '#',
-      githubLink: '#',
-      category: 'Web App',
-      year: '2024'
-    }
+    { _id: '1', title: 'E-Commerce Platform', description: 'A full-featured online store with inventory management, payment processing, and order tracking. Built for a fashion retailer serving 10,000+ monthly customers.', imageLink: 'https://images.unsplash.com/photo-1557821552-17105176677c?w=800&h=600&fit=crop', liveLink: '#', githubLink: '#', category: 'Web App', year: '2024' },
+    { _id: '2', title: 'Healthcare Dashboard', description: 'Patient management system for a medical clinic with appointment scheduling, medical records, and billing integration.', imageLink: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop', liveLink: '#', category: 'Dashboard', year: '2024' },
+    { _id: '3', title: 'Real Estate Marketplace', description: 'Property listing platform with advanced search, virtual tours, and agent management features.', imageLink: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop', liveLink: '#', githubLink: '#', category: 'Web App', year: '2023' },
+    { _id: '4', title: 'Fitness Tracking App', description: 'Mobile-responsive fitness tracker with workout plans, progress tracking, and social features.', imageLink: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&h=600&fit=crop', liveLink: '#', category: 'Mobile App', year: '2023' },
+    { _id: '5', title: 'SaaS Analytics Platform', description: 'Business intelligence dashboard with real-time data visualization and custom reporting for growing businesses.', imageLink: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop', liveLink: '#', category: 'Dashboard', year: '2023' },
+    { _id: '6', title: 'Restaurant Ordering System', description: 'Online ordering platform with menu management, delivery tracking, and customer loyalty program.', imageLink: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600&fit=crop', liveLink: '#', githubLink: '#', category: 'Web App', year: '2024' },
   ];
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const data = await projectService.getAllProjects();
-        if (data.data && data.data.length > 0) {
-          setProjects(data.data);
-        } else {
-          setProjects(sampleProjects);
-        }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
+        setProjects(data.data?.length ? data.data : sampleProjects);
+      } catch {
         setProjects(sampleProjects);
       } finally {
         setLoading(false);
@@ -97,105 +178,104 @@ const Portfolio = () => {
     fetchProjects();
   }, []);
 
-  return (
-    <div className="min-h-screen pt-32 pb-20">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">Our Work</h1>
-          <p className="text-xl text-muted-foreground max-w-3xl">
-            A selection of projects we've delivered for clients across different industries. Each project represents our commitment to quality, innovation, and client success.
-          </p>
-        </div>
+  const categories = ['All', ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))];
+  const filtered = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);
 
-        {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-96 bg-secondary rounded-xl animate-pulse" />
+  return (
+    <div className="min-h-screen bg-[#f8faff] dark:bg-[#0d1117] text-[#1a2a5e] dark:text-[#e8eeff] transition-colors duration-300">
+
+      {/* ── Hero ── */}
+      <div className="relative pt-32 pb-20 px-4 overflow-hidden">
+        {/* Radial glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(59,91,219,0.10) 0%, transparent 70%)' }}
+        />
+
+        <div className="container mx-auto max-w-6xl relative z-10 d-flex justify-items-center align-items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center"
+          >
+            {/* Eyebrow — pill style matching screenshot */}
+              <div className="flex justify-center items-center gap-3 mb-4">
+                <div className="h-px w-8 bg-primary" />
+                <span className="text-primary text-xs font-bold tracking-[0.2em] uppercase">Selected Work</span>
+                <div className="h-px w-8 bg-primary" />
+              </div>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.05] mb-5 text-center">
+              Our{' '}
+              <span className="relative inline-block">
+                <span className="text-[#3b5bdb] dark:text-[#748ffc]">Portfolio</span>
+                <svg className="absolute -bottom-2 left-0 w-full" height="5" viewBox="0 0 200 5" preserveAspectRatio="none">
+                  <path d="M0 4 Q100 0 200 4" stroke="#3b5bdb" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.35" />
+                </svg>
+              </span>
+            </h1>
+
+            <p className="text-lg text-[#5a6b9a] dark:text-[#8896c0] max-w-2xl leading-relaxed text-center">
+              A curated selection of projects we've built for clients across industries —
+              each one a collaboration we're genuinely proud of.
+            </p>
+          </motion.div>
+
+        </div>
+      </div>
+
+      {/* ── Divider ── */}
+      <div className="container mx-auto max-w-6xl px-4">
+        <div className="h-px" style={{ background: 'linear-gradient(to right, transparent, #c5d0ff, transparent)' }} />
+      </div>
+
+      {/* ── Filter pills ── */}
+      {!loading && categories.length > 2 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="container mx-auto max-w-6xl px-4 py-7"
+        >
+          <div className="flex flex-wrap gap-2">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                  activeFilter === cat
+                    ? 'bg-[#3b5bdb] dark:bg-[#4263eb] text-white border-[#3b5bdb] dark:border-[#4263eb] shadow-[0_4px_14px_rgba(59,91,219,0.35)]'
+                    : 'bg-white dark:bg-[#161b27] text-[#5a6b9a] dark:text-[#8896c0] border-[#dbe4ff] dark:border-[#2a3550] hover:border-[#3b5bdb] dark:hover:border-[#4263eb] hover:text-[#3b5bdb] dark:hover:text-[#748ffc]'
+                }`}
+              >
+                {cat}
+              </button>
             ))}
           </div>
+        </motion.div>
+      )}
+
+      {/* ── Project Grid ── */}
+      <div className="container mx-auto max-w-6xl px-4 pb-24">
+        {loading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1,2,3,4,5,6].map(i => <Skeleton key={i} />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-[#5a6b9a] dark:text-[#8896c0]">No projects in this category yet.</p>
+          </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence mode="popLayout">
-              {projects.map((project) => (
-                <motion.div
-                  key={project._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Card className="overflow-hidden h-full flex flex-col group hover:shadow-xl transition-shadow">
-                    <div className="relative aspect-video overflow-hidden bg-secondary">
-                      <img
-                        src={project.imageLink}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                        {project.liveLink && (
-                          <a
-                            href={project.liveLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                          >
-                            <ExternalLink size={20} className="text-primary" />
-                          </a>
-                        )}
-                        {project.githubLink && (
-                          <a
-                            href={project.githubLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                          >
-                            <Github size={20} className="text-primary" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-6 flex-grow flex flex-col">
-                      {project.category && (
-                        <div className="text-xs font-medium text-primary mb-2">{project.category}</div>
-                      )}
-                      <h3 className="text-xl font-bold mb-3">{project.title}</h3>
-                      <p className="text-muted-foreground mb-4 flex-grow text-sm leading-relaxed">
-                        {project.description}
-                      </p>
-                      {/* Tech stack tags removed as per user request */}
-                      {project.year && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto">
-                          <Calendar size={14} />
-                          <span>{project.year}</span>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                </motion.div>
+              {filtered.map((project, i) => (
+                <ProjectCard key={project._id} project={project} index={i} />
               ))}
             </AnimatePresence>
           </div>
         )}
-
-        {projects.length === 0 && !loading && (
-          <div className="text-center py-20">
-            <p className="text-xl text-muted-foreground">No projects found.</p>
-          </div>
-        )}
-
-        <Section className="mt-24 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6">Have a project in mind?</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              We'd love to hear about it. Let's discuss how we can help bring your vision to life.
-            </p>
-            <Link to="/contact">
-              <Button size="lg">Start your project</Button>
-            </Link>
-          </div>
-        </Section>
       </div>
+
+    
     </div>
   );
 };

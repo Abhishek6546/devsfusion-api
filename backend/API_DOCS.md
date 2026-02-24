@@ -185,7 +185,7 @@ POST /api/contact
   "email": "john@example.com",
   "subject": "Project Inquiry",
   "message": "Hello, I would like to discuss a project...",
-  "phone": "+1234567890"
+  "phone": "+91 62834 21968"
 }
 ```
 ✉️ Sends email notification to admin and auto-reply to user.
