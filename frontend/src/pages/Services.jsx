@@ -1,13 +1,11 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Code, Palette, Lightbulb, ArrowRight, CheckCircle,
   Smartphone, Database, Cloud, Sparkles, Clock, Shield, Zap
 } from 'lucide-react';
 import Section from '../components/ui/Section';
-import Button from '../components/ui/Button';
 import { Link } from 'react-router-dom';
-import { serviceService } from '../api/services/serviceService';
+import { services } from '../data/services';
 
 const iconMap = {
   Code: <Code size={32} />,
@@ -33,30 +31,13 @@ const whyUs = [
 ];
 
 const Services = () => {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const data = await serviceService.getAllServices();
-        setServices(data.data || []);
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchServices();
-  }, []);
-
   const getIcon = (iconName) => iconMap[iconName] || <Code size={32} />;
 
   return (
     <div className="min-h-screen">
 
       {/* ── Hero Header ── */}
-      <div className="relative pt-32 pb-20 overflow-hidden">
+      <div className="relative pt-16 pb-8 md:pt-24 md:pb-12 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl" />
@@ -127,137 +108,118 @@ const Services = () => {
       {/* ── Services List ── */}
       <div className="container mx-auto px-6 max-w-6xl pb-24">
         <div className="space-y-24">
-          {loading ? (
-            [1, 2, 3].map((i) => (
-              <div key={i} className="grid lg:grid-cols-2 gap-12 items-center animate-pulse">
-                <div className="space-y-4">
-                  <div className="w-14 h-14 bg-secondary rounded-2xl" />
-                  <div className="h-8 bg-secondary rounded w-2/3" />
-                  <div className="h-4 bg-secondary rounded w-full" />
-                  <div className="h-4 bg-secondary rounded w-5/6" />
-                  <div className="grid grid-cols-2 gap-3 pt-4">
-                    {[1, 2, 3, 4].map((j) => (
-                      <div key={j} className="h-4 bg-secondary rounded" />
-                    ))}
+          {services.map((service, index) => (
+            <motion.div
+              key={service._id}
+              className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Content */}
+              <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
+
+                {/* Number + Icon row */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 dark:bg-primary/15 border border-primary/20 flex items-center justify-center text-primary">
+                    {getIcon(service.icon)}
                   </div>
+                  <span className="text-5xl font-black text-primary/10 dark:text-primary/15 leading-none select-none">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                 </div>
-                <div className="aspect-square rounded-3xl bg-secondary" />
-              </div>
-            ))
-          ) : (
-            services.map((service, index) => (
-              <motion.div
-                key={service._id}
-                className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.6 }}
-              >
-                {/* Content */}
-                <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
 
-                  {/* Number + Icon row */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/10 dark:bg-primary/15 border border-primary/20 flex items-center justify-center text-primary">
-                      {getIcon(service.icon)}
-                    </div>
-                    <span className="text-5xl font-black text-primary/10 dark:text-primary/15 leading-none select-none">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
+                {/* Label */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-primary" />
+                  <span className="text-primary text-xs font-bold tracking-widest uppercase">
+                    Service {String(index + 1).padStart(2, '0')}
+                  </span>
+                </div>
 
-                  {/* Label */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-px w-8 bg-primary" />
-                    <span className="text-primary text-xs font-bold tracking-widest uppercase">
-                      Service {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-4 leading-tight">
+                  {service.title}
+                </h2>
 
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-4 leading-tight">
-                    {service.title}
-                  </h2>
+                <p className="text-base text-muted-foreground mb-8 leading-relaxed">
+                  {service.description}
+                </p>
 
-                  <p className="text-base text-muted-foreground mb-8 leading-relaxed">
-                    {service.description}
-                  </p>
-
-                  {/* Features */}
-                  {service.features?.length > 0 && (
-                    <div className="mb-8">
-                      <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-4 uppercase tracking-wider">
-                        What&apos;s included
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {service.features.map((feature) => (
-                          <div
-                            key={feature}
-                            className="flex items-start gap-2.5 p-2.5 rounded-xl bg-primary/5 dark:bg-primary/8 border border-primary/10"
-                          >
-                            <CheckCircle size={15} className="text-primary mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                              {feature}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Technologies */}
-                  {service.technologies?.length > 0 && (
-                    <div className="mb-8">
-                      <h3 className="font-bold text-xs text-muted-foreground mb-3 uppercase tracking-widest">
-                        Technologies
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {service.technologies.map((tech) => (
-                          <span
-                            key={tech}
-                            className="px-3 py-1.5 bg-card dark:bg-card border border-border/50 dark:border-border/20 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm"
-                          >
-                            {tech}
+                {/* Features */}
+                {service.features?.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-4 uppercase tracking-wider">
+                      What&apos;s included
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {service.features.map((feature) => (
+                        <div
+                          key={feature}
+                          className="flex items-start gap-2.5 p-2.5 rounded-xl bg-primary/5 dark:bg-primary/8 border border-primary/10"
+                        >
+                          <CheckCircle size={15} className="text-primary mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                            {feature}
                           </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <Link to="/contact">
-                    <button className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/25 hover:-translate-y-0.5 transition-all duration-300">
-                      Get started
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
-                    </button>
-                  </Link>
-                </div>
-
-                {/* Image / Visual */}
-                <div className={`relative ${index % 2 === 1 ? 'lg:order-1' : ''}`}>
-                  {/* Decorative bg shape */}
-                  <div className="absolute inset-4 bg-primary/5 dark:bg-primary/10 rounded-3xl blur-xl" />
-
-                  <div className="relative rounded-3xl overflow-hidden border border-border/50 dark:border-border/20 bg-gradient-to-br from-primary/8 via-primary/5 to-transparent shadow-xl">
-                    <img
-                      src={service.image}
-                      alt={service.title}
-                      className="w-full h-72 sm:h-80 lg:h-96 object-cover"
-                    />
-                    {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-
-                    {/* Floating tag */}
-                    <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm border border-white/20 shadow-lg">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-xs font-bold text-slate-900 dark:text-white">
-                        Available now
-                      </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
+                )}
+
+                {/* Technologies */}
+                {service.technologies?.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="font-bold text-xs text-muted-foreground mb-3 uppercase tracking-widest">
+                      Technologies
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {service.technologies.map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-3 py-1.5 bg-card dark:bg-card border border-border/50 dark:border-border/20 rounded-full text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <Link to="/contact">
+                  <button className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/25 hover:-translate-y-0.5 transition-all duration-300">
+                    Get started
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
+                  </button>
+                </Link>
+              </div>
+
+              {/* Image / Visual */}
+              <div className={`relative ${index % 2 === 1 ? 'lg:order-1' : ''}`}>
+                {/* Decorative bg shape */}
+                <div className="absolute inset-4 bg-primary/5 dark:bg-primary/10 rounded-3xl blur-xl" />
+
+                <div className="relative rounded-3xl overflow-hidden border border-border/50 dark:border-border/20 bg-gradient-to-br from-primary/8 via-primary/5 to-transparent shadow-xl">
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-72 sm:h-80 lg:h-96 object-cover"
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+
+                  {/* Floating tag */}
+                  <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-sm border border-white/20 shadow-lg">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      Available now
+                    </span>
+                  </div>
                 </div>
-              </motion.div>
-            ))
-          )}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 

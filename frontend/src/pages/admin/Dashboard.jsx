@@ -7,11 +7,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { projectService } from '../../api/services/projectService';
-import { serviceService } from '../../api/services/serviceService';
-import { testimonialService } from '../../api/services/testimonialService';
-import { contactService } from '../../api/services/contactService';
-import { uploadService } from '../../api/services/uploadService';
+import { projects as localProjects } from '../../data/projects';
+import { services as localServices } from '../../data/services';
+import { testimonials as localTestimonials } from '../../data/testimonials';
 import { useTheme } from '../../context/ThemeContext';
 
 const Dashboard = () => {
@@ -47,23 +45,16 @@ const Dashboard = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [projectsRes, servicesRes, testimonialsRes, messagesRes] = await Promise.all([
-        projectService.getAllProjects(),
-        serviceService.getAllServices(),
-        testimonialService.getAllTestimonials(),
-        contactService.getAllContacts()
-      ]);
-
-      setProjects(projectsRes.data?.projects || projectsRes.data || []);
-      setServices(servicesRes.data || []);
-      setTestimonials(testimonialsRes.data?.testimonials || testimonialsRes.data || []);
-      setMessages(messagesRes.data?.contacts || messagesRes.data || []);
+      setProjects(localProjects);
+      setServices(localServices);
+      setTestimonials(localTestimonials);
+      setMessages([]); // No messages in local JSON yet
 
       setStats({
-        projects: (projectsRes.data?.projects || projectsRes.data || []).length,
-        services: (servicesRes.data || []).length,
-        testimonials: (testimonialsRes.data?.testimonials || testimonialsRes.data || []).length,
-        messages: (messagesRes.data?.contacts || messagesRes.data || []).length
+        projects: localProjects.length,
+        services: localServices.length,
+        testimonials: localTestimonials.length,
+        messages: 0
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -126,71 +117,12 @@ const Dashboard = () => {
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    try {
-      let imageUrl = formData.imageLink || formData.image || formData.avatar || '';
-
-      // Upload image if new file selected
-      if (imageFile) {
-        let uploadRes;
-        if (modalType === 'project') uploadRes = await uploadService.uploadProjectImage(imageFile);
-        else if (modalType === 'service') uploadRes = await uploadService.uploadServiceImage(imageFile);
-        else if (modalType === 'testimonial') uploadRes = await uploadService.uploadTestimonialImage(imageFile);
-
-        if (uploadRes?.data?.url) {
-          imageUrl = uploadRes.data.url;
-        }
-      }
-
-      const dataToSave = { ...formData };
-      if (modalType === 'project') dataToSave.imageLink = imageUrl;
-      else if (modalType === 'service') dataToSave.image = imageUrl;
-      else if (modalType === 'testimonial') dataToSave.avatar = imageUrl;
-
-      if (modalType === 'service') {
-        if (typeof dataToSave.features === 'string') {
-          dataToSave.features = dataToSave.features.split(',').map(s => s.trim()).filter(Boolean);
-        }
-        if (typeof dataToSave.technologies === 'string') {
-          dataToSave.technologies = dataToSave.technologies.split(',').map(s => s.trim()).filter(Boolean);
-        }
-      }
-
-      if (editingItem) {
-        // Update
-        if (modalType === 'project') await projectService.updateProject(editingItem._id, dataToSave);
-        else if (modalType === 'service') await serviceService.updateService(editingItem._id, dataToSave);
-        else if (modalType === 'testimonial') await testimonialService.updateTestimonial(editingItem._id, dataToSave);
-      } else {
-        // Create
-        if (modalType === 'project') await projectService.createProject(dataToSave);
-        else if (modalType === 'service') await serviceService.createService(dataToSave);
-        else if (modalType === 'testimonial') await testimonialService.createTestimonial(dataToSave);
-      }
-
-      closeModal();
-      fetchAllData();
-    } catch (error) {
-      console.error('Error saving:', error);
-      alert('Error saving: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setSaving(false);
-    }
+    alert('Saving is disabled in this local-only version.');
+    closeModal();
   };
 
   const handleDelete = async (type, id) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
-
-    try {
-      if (type === 'project') await projectService.deleteProject(id);
-      else if (type === 'service') await serviceService.deleteService(id);
-      else if (type === 'testimonial') await testimonialService.deleteTestimonial(id);
-      else if (type === 'message') await contactService.deleteContact(id);
-      fetchAllData();
-    } catch (error) {
-      console.error('Error deleting:', error);
-      alert('Error deleting: ' + (error.response?.data?.message || error.message));
-    }
+    alert('Deleting is disabled in this local-only version.');
   };
 
   const navItems = [

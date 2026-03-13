@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import Section from '../ui/Section';
-import { testimonialService } from '../../api/services/testimonialService';
+import { testimonials as localTestimonials } from '../../data/testimonials';
 
 const renderStars = (rating) => (
   <div className="flex gap-0.5">
@@ -18,7 +18,7 @@ const renderStars = (rating) => (
 
 const TestimonialCard = ({ testimonial }) => (
   <div className="flex-shrink-0 w-[360px] sm:w-[380px] bg-card dark:bg-card border border-border/50 dark:border-white/20 rounded-2xl p-6 mx-3 hover:border-primary/30 dark:hover:border-white/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-default">
-    
+
     {/* Quote mark */}
     <div className="text-primary text-4xl font-black leading-none mb-4 font-serif">
       "
@@ -57,13 +57,12 @@ const TestimonialCard = ({ testimonial }) => (
   </div>
 );
 
-const MarqueeRow = ({ items, direction = 'left', speed = 40 }) => {
+const MarqueeRow = ({ items, direction = 'left' }) => {
   const [isPaused, setIsPaused] = useState(false);
   const rowRef = useRef(null);
   const animRef = useRef(null);
   const posRef = useRef(0);
 
-  // Duplicate enough for seamless loop
   const doubled = [...items, ...items, ...items];
 
   useEffect(() => {
@@ -89,7 +88,6 @@ const MarqueeRow = ({ items, direction = 'left', speed = 40 }) => {
       animRef.current = requestAnimationFrame(animate);
     };
 
-    // Init right-direction offset
     if (direction === 'right') {
       posRef.current = row.scrollWidth / 3;
     }
@@ -121,26 +119,8 @@ const MarqueeRow = ({ items, direction = 'left', speed = 40 }) => {
 };
 
 const Testimonials = () => {
-  const [testimonials, setTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const data = await testimonialService.getAllTestimonials({ featured: true, limit: 12 });
-        setTestimonials(data.data?.testimonials || []);
-      } catch (error) {
-        console.error('Error fetching testimonials:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTestimonials();
-  }, []);
-
-  // Split into two rows
-  const mid = Math.ceil(testimonials.length / 2);
-  const row1 = testimonials.slice(0, mid);
+  const mid = Math.ceil(localTestimonials.length / 2);
+  const row1 = localTestimonials.slice(0, mid);
 
   return (
     <Section className="py-20 relative overflow-hidden">
@@ -180,27 +160,11 @@ const Testimonials = () => {
           </p>
         </motion.div>
 
-        {/* Loading skeleton */}
-        {loading ? (
-          <div className="space-y-4 px-6">
-            {[1, 2].map(row => (
-              <div key={row} className="flex gap-6 overflow-hidden">
-                {[1, 2, 3].map(i => (
-                  <div
-                    key={i}
-                    className="flex-shrink-0 w-80 h-48 rounded-2xl bg-card border border-border/50 animate-pulse"
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        ) : testimonials.length > 0 ? (
+        {localTestimonials.length > 0 ? (
           <div className="space-y-4">
-            {/* Row 1 — scrolls left */}
             {row1.length > 0 && (
               <MarqueeRow items={row1} direction="left" />
             )}
-
           </div>
         ) : (
           <p className="text-center text-muted-foreground">No testimonials yet.</p>

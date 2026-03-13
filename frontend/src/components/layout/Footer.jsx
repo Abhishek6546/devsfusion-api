@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, MapPin, Phone, ArrowRight, Heart } from 'lucide-react';
+import { Github, Linkedin, Mail, MapPin, Phone, ArrowRight, Heart, Instagram, Clock } from 'lucide-react';
 import logo from '../../assets/images/devsfusion_logo.png';
 import whiteLogo from '../../assets/images/devsfusion-white-logo.png';
 
@@ -11,17 +11,17 @@ const footerLinks = {
     { label: 'Contact', to: '/contact' },
   ],
   services: [
-    { label: 'Web Development', to: '/services' },
+    { label: 'Custom Web Applications', to: '/services' },
+    { label: 'CMS & E-commerce', to: '/services' },
     { label: 'UI/UX Design', to: '/services' },
-    { label: 'Cloud Solutions', to: '/services' },
-    { label: 'Consulting', to: '/services' },
+    { label: 'AI & Intelligent Solutions', to: '/services' },
   ],
 };
 
 const socials = [
   { icon: <Github size={16} />, href: '#', label: 'GitHub' },
-  { icon: <Twitter size={16} />, href: '#', label: 'Twitter' },
-  { icon: <Linkedin size={16} />, href: '#', label: 'LinkedIn' },
+  { icon: <Linkedin size={16} />, href: 'https://www.linkedin.com/company/devsfusion/', label: 'LinkedIn' },
+  { icon: <Instagram size={16} />, href: 'https://www.instagram.com/devsfusionofficial/', label: 'Instagram' },
   { icon: <Mail size={16} />, href: 'mailto:contact.devsfusion@gmail.com', label: 'Email' },
 ];
 
@@ -97,7 +97,7 @@ const Footer = () => {
               </div>
 
               {/* Mini stat pills */}
-             
+
             </div>
 
             {/* ── Company Links ── */}
@@ -150,15 +150,16 @@ const Footer = () => {
               </h3>
 
               <div className="space-y-3">
-                {/* Address */}
-                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm">
+
+                {/* Working Hours */}
+                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 dark:bg-primary/15 flex items-center justify-center flex-shrink-0">
-                    <MapPin size={14} className="text-primary" />
+                    <Clock size={14} className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-0.5">Location</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      SCO 12, Ranjit Avenue, Amritsar, Punjab
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-0.5">Working Hours</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Open 24/7
                     </p>
                   </div>
                 </div>
@@ -204,7 +205,7 @@ const Footer = () => {
             <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
               © {new Date().getFullYear()}
               <span className="text-primary font-bold">DevsFusion</span>
-      
+
             </p>
 
             <div className="flex items-center gap-1">

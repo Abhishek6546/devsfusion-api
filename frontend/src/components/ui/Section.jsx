@@ -2,7 +2,7 @@ const Section = ({ children, className = '', id = '' }) => {
   return (
     <section
       id={id}
-      className={`py-20 ${className}`}
+      className={`py-8 md:py-12 ${className}`}
     >
       {children}
     </section>

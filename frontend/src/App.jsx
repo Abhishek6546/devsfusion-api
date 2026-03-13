@@ -9,10 +9,15 @@ import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import ProtectedRoute from './components/admin/ProtectedRoute';
 import { ThemeProvider } from './context/ThemeContext';
+import { useEffect } from 'react';
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
